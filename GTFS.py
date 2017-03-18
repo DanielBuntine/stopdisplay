@@ -3,18 +3,6 @@
 
 # In[ ]:
 
-stopid='1076'
-RTcolnames=['RTUpdate','RTVehicle','RTDelay','RTTime','RTTimeDisplay','RTTimeCountdown']
-RTupdateinterval=30
-font_std=("Helvetica", 16)
-font_bold=("Helvetica", 16,'bold')
-font_time=("Helvetica", 24,'bold')
-viewrows=10 #rows
-viewcols=5 #columns
-latestdate=dt.date.today()
-
-print('Starting...')
-
 from google.transit import gtfs_realtime_pb2
 import urllib.request
 import pandas as pd
@@ -25,6 +13,20 @@ import numpy as np
 import multiprocessing as mp
 from contextlib import suppress
 import tkinter as tk
+
+stopid='1076'
+RTcolnames=['RTUpdate','RTVehicle','RTDelay','RTTime','RTTimeDisplay','RTTimeCountdown']
+RTupdateinterval=30
+font_std=("Helvetica", 16)
+font_bold=("Helvetica", 20,'bold')
+font_time=("Helvetica", 24,'bold')
+viewrows=10 #rows
+viewcols=5 #columns
+latestdate=dt.date.today()+dt.timedelta(days=-1)
+
+print('Starting...')
+
+
 
 rtget = dt.datetime.min
 rtfeed = gtfs_realtime_pb2.FeedMessage()
@@ -281,7 +283,7 @@ def set_text_disp(initial=False):
 print('Loaded functions')
 
 
-# In[3]:
+# In[6]:
 
 print('Loading GTFS')
 dl_gtfs()
@@ -289,7 +291,7 @@ feed = gt.read_gtfs(r'SEQ_GTFS.zip', dist_units='km')
 print('GTFS Ready')
 
 
-# In[96]:
+# In[ ]:
 
 subset=get_stop_subset(get_stoptt_RT(stopid,latestdate))
 
@@ -328,16 +330,22 @@ for c in range(min(len(subset),viewrows)):
     displabels.append([])
     for i in range(viewcols):
         disptext[c].append(tk.StringVar())
-        if i==1:
+        if i==0:
+            displabels[c].append(tk.Label(timeframe,font=font_bold, textvariable=disptext[c][i],bg='black'))
+            displabels[c][i].grid(row=c,column=i)
+        elif i==1:
             displabels[c].append(tk.Label(timeframe,font=font_bold, textvariable=disptext[c][i],bg='#'+subset['route_color'].iloc[c], fg='#'+subset['route_text_color'].iloc[c], relief='raised'))
             displabels[c][i].grid(row=c,column=i,sticky='nesw')
+        elif i==2:
+            displabels[c].append(tk.Label(timeframe,font=font_std, textvariable=disptext[c][i],bg='black'))
+            displabels[c][i].grid(row=c,column=i,sticky='w')
+        elif i==3:
+            displabels[c].append(tk.Label(timeframe,font=font_std, textvariable=disptext[c][i],bg='black'))
+            displabels[c][i].grid(row=c,column=i)
         elif i==4:
             displabels[c].append(tk.Label(timeframe,font=font_bold, textvariable=disptext[c][i],bg='black'))
             displabels[c][i].grid(row=c,column=i)
-        else:
-            displabels[c].append(tk.Label(timeframe,font=font_std, textvariable=disptext[c][i],bg='black'))
-            displabels[c][i].grid(row=c,column=i)
-
+            
 set_text_disp(True)
 
 for c in range(min(len(subset),viewrows)):
@@ -348,9 +356,4 @@ for i in range(viewcols):
 
 root.after(1000, refresh_disp)
 root.mainloop()
-
-
-# In[94]:
-
-subset
 
